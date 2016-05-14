@@ -2,17 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="Y:/CompSci/Java/jgrapht-0.9.2/lib/jgraph-5.13.0.0.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Y:/CompSci/Java/jgrapht-0.9.2/javadoc/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="Y:/CompSci/Java/jgrapht-0.9.2/lib/jgrapht-core-0.9.2.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Y:/CompSci/Java/jgrapht-0.9.2/javadoc/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="Y:/CompSci/Java/jgrapht-0.9.2/lib/jgrapht-ext-0.9.2.jar"/>
 	<classpathentry kind="lib" path="/la4j-master/bin"/>
 	<classpathentry kind="lib" path="/ashley-master/bin"/>
 	<classpathentry kind="lib" path="/libgdx/gdx.jar"/>
