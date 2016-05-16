@@ -9,5 +9,9 @@ public class MovementSystem extends EntitySystem {
 	private ImmutableArray<Entity> entities;
 	
 	public MovementSystem() {}
+	
+	public void applyVelocity(Entity thing) {
+		
+	}
 
 }
