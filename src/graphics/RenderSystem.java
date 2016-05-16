@@ -12,12 +12,11 @@ public class RenderSystem extends EntitySystem {
 	
 	public RenderSystem() {}
 	
+	// if translating origin to u, return where v would be.
+	// This might not be necessary in the long run.
 	public Vector translatePoincare(BasicVector u, BasicVector v) {
 		Vector pos = (v.multiply(1+2*(u.innerProduct(v))+u.euclideanNorm()*u.euclideanNorm()).add(u.multiply(1-v.euclideanNorm()*v.euclideanNorm())));
 		pos = pos.divide(1+2*(u.innerProduct(v))+u.euclideanNorm()*u.euclideanNorm()*v.euclideanNorm()*v.euclideanNorm());
 		return pos;
 	}
-	
-	
-	
 }
