@@ -1,11 +1,11 @@
 package baseComponents;
 
-import org.la4j.*;
-import org.la4j.vector.dense.BasicVector;
-
 import com.badlogic.ashley.core.*;
+
+import types.Complex;
 
 // x,y,rot
 public class PositionComponent implements Component {
-	public BasicVector coords;
+	public Complex coords;
+	public double heading;
 }
