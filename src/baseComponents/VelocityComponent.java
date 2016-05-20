@@ -1,6 +1,6 @@
 package baseComponents;
 
-import org.la4j.vector.dense.BasicVector;
+import org.la4j.matrix.dense.Basic2DMatrix;
 
 import com.badlogic.ashley.core.*;
 
@@ -9,4 +9,5 @@ import com.badlogic.ashley.core.*;
 
 public class VelocityComponent implements Component {
 	public double distance, angle, spin;
+	public Basic2DMatrix currentTransform;
 }

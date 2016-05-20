@@ -1,5 +1,7 @@
 package baseSystems;
 
+import org.la4j.matrix.dense.Basic2DMatrix;
+
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.*;
 
@@ -13,8 +15,13 @@ public class MovementSystem extends EntitySystem {
 	
 	public void applyVelocity(Entity thing) {
 		Complex coords = Mappers.position.get(thing).coords;
+		Basic2DMatrix transform = Mappers.velocity.get(thing).currentTransform;
 		Complex oldCoords = new Complex(coords.re, coords.im);
-		Mappers.position.get(thing).heading += Mappers.velocity.get(thing).spin;
+		if (transform != null) {
+			Mappers.position.get(thing).coords = coords.mobius(transform);
+		} else {
+			
+		}
 		
 	}
 

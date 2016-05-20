@@ -1,5 +1,7 @@
 package types;
 
+import org.la4j.matrix.dense.Basic2DMatrix;
+
 public class Complex {
 	public double re;
 	public double im;
@@ -52,9 +54,8 @@ public class Complex {
 		return new Complex(re / a, -im / a);
 	}
 	
-	public Complex mobius(double a, double b, double c, double d) {
-		double a = (this.times(a).add
-	}
+	public Complex mobius(double a, double b, double c, double d) { return this.times(a).add(b).divide(this.times(c).add(d)); }
+	public Complex mobius(Basic2DMatrix f) { return mobius(f.get(0, 0), f.get(0, 1), f.get(1, 0), f.get(1, 1)); }
 	
 	public Complex divide(Complex z) { return this.times(z.reciprocal()); }
 	public Complex exp() { return new Complex(Math.exp(re) * Math.cos(im), Math.exp(re) * Math.sin(im)); }
