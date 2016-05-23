@@ -55,6 +55,7 @@ public class Complex {
 	}
 	
 	public Complex mobius(double a, double b, double c, double d) { return this.times(a).add(b).divide(this.times(c).add(d)); }
+	public Complex mobius(Complex a, double b, double c, double d) { return this.times(a).add(b).divide(this.times(c).add(d)); }
 	public Complex mobius(Basic2DMatrix f) { return mobius(f.get(0, 0), f.get(0, 1), f.get(1, 0), f.get(1, 1)); }
 	
 	public Complex divide(Complex z) { return this.times(z.reciprocal()); }

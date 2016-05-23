@@ -7,12 +7,14 @@ import org.la4j.matrix.dense.Basic2DMatrix;
 import com.badlogic.gdx.graphics.Color;
 
 import types.Complex;
+import types.VecPath;
 
 public class VecImage {
-	protected List<Path> paths;
+	protected List<VecPath> paths;
 	
-	class Path {
-		protected List<Basic2DMatrix> vertices;
-		protected Color fillType;
+	public VecImage(List<VecPath> paths) {
+		this.paths = paths;
 	}
+	
+	
 }
