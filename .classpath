@@ -3,7 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/la4j-master/bin"/>
-	<classpathentry kind="lib" path="/ashley-master/bin"/>
 	<classpathentry kind="lib" path="/libgdx/gdx.jar"/>
+	<classpathentry kind="lib" path="/libgdx/gdx-backend-lwjgl.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ashley-ashley-1.7.2"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
