@@ -11,6 +11,10 @@ public class Complex {
 		im = imaginary;
 	}
 	
+	public boolean equals(Complex z) {
+		return (this.re == z.re && this.im == z.im);
+	}
+	
 	public double abs() {
 		// Source of this algorithm can be found in the newsgroup excerpt at
 		// http://steve.hollasch.net/cgindex/math/pythag-root.txt
@@ -22,6 +26,10 @@ public class Complex {
 		if (a < b) { r = a; a = b; b = r; }
 		r = b/a;
 		return a*Math.sqrt(1+r*r);
+	}
+	
+	public double absSq() {
+		return (re*re + im*im);
 	}
 	
 	public double angle() { return Math.atan2(im, re); }

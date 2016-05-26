@@ -20,6 +20,8 @@ public class Main {
 		config.height = 800;
 		config.width = 800;
 		LwjglApplication mainWindow = new LwjglApplication(new GameAdapter(), config);
+		
+		
 	}
 	
 	public void testSetup() {

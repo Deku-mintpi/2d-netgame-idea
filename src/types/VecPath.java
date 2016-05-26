@@ -6,7 +6,7 @@ import org.la4j.matrix.dense.Basic2DMatrix;
 
 import com.badlogic.gdx.graphics.Color;
 
-public class VecPath {
+public class VecPath{
 	public List<Basic2DMatrix> vertices;
 	public Color fillType;
 	
