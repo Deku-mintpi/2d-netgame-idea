@@ -2,6 +2,8 @@
 
 // precision mediump float;
 
+#version 150
+
 varying vec2 vPos;
 
 #define MAX_ARCS 16

@@ -54,7 +54,7 @@ public class GameAdapter extends ApplicationAdapter {
 	}
 
 	@Override
-	public void render() {
+	public void render() { 
 		// TODO Auto-generated method stub
 		Gdx.gl.glClearColor(0.05f, 0.1f, 0.1f, 1);
 	    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
