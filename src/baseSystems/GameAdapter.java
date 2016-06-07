@@ -14,6 +14,9 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.*;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import types.*;
 
@@ -27,17 +30,21 @@ public class GameAdapter extends ApplicationAdapter {
 	private Complex origin;
 	ShaderProgram hyperShade;
 	Mesh fullquad;
+	private Stage stage;
+	private Table table;
 
 	@Override
 	public void create() {
 		// TODO Auto-generated method stub
+		stage = new Stage(new ScreenViewport());
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 2, 2);
 		origin = new Complex(0, 0);
 		hyperShade = new ShaderProgram(Gdx.files.internal("baseSystems/hypervertex.glsl"), Gdx.files.internal("baseSystems/hyperfrag.glsl"));
 		shapes = new Vector<Complex[]> (5);
-		shapes.setSize(1);
-		shapes.set(0, new Complex[] {new Complex(0.5, 0.5), new Complex(0.0, 1.0), new Complex(-0.5, 0.5), new Complex(-0.5, -0.5), new Complex(0.5, -0.5)});
+		shapes.setSize(2);
+		shapes.set(0, new Complex[] {new Complex(0.3, 0.3), new Complex(0.0, 0.5), new Complex(-0.3, 0.3), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
+		shapes.set(1, new Complex[] {new Complex(0.3, 0.3), new Complex(0.2, 0.4), new Complex(-0.3, 0.3), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
 		fullquad = createFullScreenQuad();
 	}
 
@@ -58,6 +65,8 @@ public class GameAdapter extends ApplicationAdapter {
 		// TODO Auto-generated method stub
 		Gdx.gl.glClearColor(0.05f, 0.1f, 0.1f, 1);
 	    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	    Gdx.gl.glEnable(GL20.GL_BLEND);
+	    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 	    for (int i = 0; i < shapes.size(); i++) {
 			shapeDraw(shapes.get(i), Color.RED);
 		}
@@ -75,34 +84,12 @@ public class GameAdapter extends ApplicationAdapter {
 		
 	}
 	
-//	public void updateShapes(Vector<VecPath> paths, Vector<Complex> positions) {
-//		shapes = paths;
-//		this.positions = positions;
-//	}
-	
-//	public void shapeDraw(VecPath path, Complex handle) {
-////		Vector3[] lines = new Vector3[path.vertices.size()];
-//		hyperShade.begin();
-//		for (int i = 1; i < path.vertices.size(); i++) {
-//			Complex p = handle.mobius(path.vertices.get(i-1));
-//			Complex q = handle.mobius(path.vertices.get(i));
-//			
-//			//convert to Klein model
-//			Complex np = new Complex(2*p.re / (1 + p.re*p.re + p.im*p.im), 2*p.im / (1 + p.re*p.re + p.im*p.im));
-//			Complex nq = new Complex(2*q.re / (1 + q.re*q.re + q.im*q.im), 2*q.im / (1 + q.re*q.re + q.im*q.im));
-//			
-//			float a = (float) (2.0*(np.im - nq.im));
-//			float b = (float) (2.0*(nq.re - np.re));
-//			float c = (float) (np.im * nq.re - np.re * nq.im);
-//			
-//			hyperShade.setUniformf("arcs["+(i-1)+"]", new Vector3(a, b, c));
-////			lines[i-1] 
-//		}
-//		hyperShade.setUniformf("color", path.fillType);
-//		hyperShade.setUniformi("numArcs", path.vertices.size());
-//		createFullScreenQuad().render(hyperShade, GL20.GL_TRIANGLE_STRIP);
-//		hyperShade.end();
-//	}
+	public void updateShapes(Vector<VecPath> paths, Vector<Complex> positions) {
+		shapes.setSize(paths.size());
+		for (int i = 0; i < paths.size(); i++) {
+			shapes.set(i, paths.get(i).toCoordinates(positions.get(i)));
+		}
+	}
 	
 	public void shapeDraw(Complex[] vertices, Color fillType) {
 		//	Vector3[] lines = new Vector3[path.vertices.size()];

@@ -1,4 +1,4 @@
-package graphics;
+package types;
 
 import java.util.List;
 
