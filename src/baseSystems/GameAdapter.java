@@ -10,6 +10,8 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.*;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch.Config;
@@ -19,6 +21,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.*;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Button.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -44,6 +47,7 @@ public class GameAdapter extends ApplicationAdapter {
 	
 	public FreeTypeFontGenerator dejaGen;
 	public FreeTypeFontParameter dejaParam;
+	public BitmapFont font16;
 
 	@Override
 	public void create() {
@@ -61,7 +65,7 @@ public class GameAdapter extends ApplicationAdapter {
 //		shapes.set(1, new Complex[] {new Complex(0.3, 0.3), new Complex(0.2, 0.4), new Complex(-0.3, 0.3), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
 		dejaGen = new FreeTypeFontGenerator(Gdx.files.internal("DejaVuSans.ttf"));
 		dejaParam = new FreeTypeFontParameter();
-		
+		font16 = dejaGen.generateFont(dejaParam);
 		setupMainMenu();
 	}
 
@@ -83,6 +87,8 @@ public class GameAdapter extends ApplicationAdapter {
 		Gdx.gl.glClearColor(0.05f, 0.1f, 0.1f, 1);
 	    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	    Gdx.gl.glEnable(GL20.GL_BLEND);
+	    stage.act(Gdx.graphics.getDeltaTime());
+	    stage.draw();
 	    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 	    for (int i = 0; i < shapes.size(); i++) {
 			shapeDraw(shapes.get(i), Color.RED);
@@ -168,13 +174,16 @@ public class GameAdapter extends ApplicationAdapter {
 	
 	public void setupMainMenu() {
 		VerticalGroup mainMenuButtons = new VerticalGroup();
-		Skin menuButtonSkin = new Skin();
-		Drawable buttonBG = menuButtonSkin.newDrawable("ButtonBG", Color.RED);
-		menuButtonSkin.add("ButtonBG", buttonBG);
-		TextButton startEdit = new TextButton("World Editor", menuButtonSkin);
-		
+		TextButtonStyle menuButtonStyle = new TextButtonStyle();
+		menuButtonStyle.font = font16;
+		menuButtonStyle.fontColor = Color.BLACK;
+		NinePatch buttonPatch = new NinePatch(new Texture(Gdx.files.internal("art/ButtonTexture.png")), 20, 20, 20, 20);
+		TextButton startEdit = new TextButton("World Editor", menuButtonStyle);
 		uiTable = new Table();
 		uiTable.setFillParent(true);
+		uiTable.add(startEdit);
+		stage.addActor(uiTable);
+		
 		
 	}
 
