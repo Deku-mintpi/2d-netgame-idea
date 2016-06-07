@@ -10,10 +10,11 @@ varying vec2 vPos;
 uniform int numArcs;
 uniform vec3 arcs[MAX_ARCS];
 uniform vec4 color;
+uniform float aspect;
 
 // Known to work with some slight aliasing issues and edge issues.
 void main() {
-    vec2 pos = vPos * 1.0;
+    vec2 pos = vec2(vPos.x * aspect, vPos.y);
     vec4 outColor = color;
     for(int i = 0; i < MAX_ARCS; i++) {
         if(i < numArcs) {

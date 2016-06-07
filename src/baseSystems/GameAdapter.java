@@ -10,12 +10,17 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.*;
+import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch.Config;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.*;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Button.*;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import types.*;
@@ -31,21 +36,33 @@ public class GameAdapter extends ApplicationAdapter {
 	ShaderProgram hyperShade;
 	Mesh fullquad;
 	private Stage stage;
-	private Table table;
+	private Table uiTable;
+	
+	private int width;
+	private int height;
+	private float aspect;
+	
+	public FreeTypeFontGenerator dejaGen;
+	public FreeTypeFontParameter dejaParam;
 
 	@Override
 	public void create() {
 		// TODO Auto-generated method stub
+		
 		stage = new Stage(new ScreenViewport());
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 2, 2);
 		origin = new Complex(0, 0);
 		hyperShade = new ShaderProgram(Gdx.files.internal("baseSystems/hypervertex.glsl"), Gdx.files.internal("baseSystems/hyperfrag.glsl"));
-		shapes = new Vector<Complex[]> (5);
-		shapes.setSize(2);
-		shapes.set(0, new Complex[] {new Complex(0.3, 0.3), new Complex(0.0, 0.5), new Complex(-0.3, 0.3), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
-		shapes.set(1, new Complex[] {new Complex(0.3, 0.3), new Complex(0.2, 0.4), new Complex(-0.3, 0.3), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
 		fullquad = createFullScreenQuad();
+		shapes = new Vector<Complex[]> (5);
+//		shapes.setSize(2);
+//		shapes.set(0, new Complex[] {new Complex(0.3, 0.3), new Complex(0.0, 0.5), new Complex(-0.3, 0.3), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
+//		shapes.set(1, new Complex[] {new Complex(0.3, 0.3), new Complex(0.2, 0.4), new Complex(-0.3, 0.3), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
+		dejaGen = new FreeTypeFontGenerator(Gdx.files.internal("DejaVuSans.ttf"));
+		dejaParam = new FreeTypeFontParameter();
+		
+		setupMainMenu();
 	}
 
 	@Override
@@ -75,7 +92,9 @@ public class GameAdapter extends ApplicationAdapter {
 	@Override
 	public void resize(int arg0, int arg1) {
 		// TODO Auto-generated method stub
-		
+		width = arg0;
+		height = arg1;
+		aspect = width/((float) height);
 	}
 
 	@Override
@@ -112,6 +131,7 @@ public class GameAdapter extends ApplicationAdapter {
 		}
 		hyperShade.setUniformf("color", fillType);
 		hyperShade.setUniformi("numArcs", vertices.length);
+		hyperShade.setUniformf("aspect", aspect);
 		fullquad.render(hyperShade, GL20.GL_TRIANGLE_STRIP);
 		hyperShade.end();
 	}
@@ -145,5 +165,17 @@ public class GameAdapter extends ApplicationAdapter {
 		return mesh;
 	}
 	// original code by kalle_h
+	
+	public void setupMainMenu() {
+		VerticalGroup mainMenuButtons = new VerticalGroup();
+		Skin menuButtonSkin = new Skin();
+		Drawable buttonBG = menuButtonSkin.newDrawable("ButtonBG", Color.RED);
+		menuButtonSkin.add("ButtonBG", buttonBG);
+		TextButton startEdit = new TextButton("World Editor", menuButtonSkin);
+		
+		uiTable = new Table();
+		uiTable.setFillParent(true);
+		
+	}
 
 }
