@@ -1,10 +1,11 @@
 package baseComponents;
 
-import org.la4j.*;
 import com.badlogic.ashley.core.*;
 
-import hypmath.HyperCoord;
+import types.Complex;
 
+// x,y,rot
 public class PositionComponent implements Component {
-	public HyperCoord pos;
+	public Complex coords;
+	public double heading;
 }
