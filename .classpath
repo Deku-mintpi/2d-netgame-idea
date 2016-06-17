@@ -8,5 +8,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ashley-ashley-1.7.2"/>
 	<classpathentry kind="lib" path="/libgdx/extensions/gdx-freetype/gdx-freetype.jar"/>
 	<classpathentry kind="lib" path="/libgdx/extensions/gdx-freetype/gdx-freetype-natives.jar"/>
+	<classpathentry kind="lib" path="/libgdx/gdx-natives.jar"/>
+	<classpathentry kind="lib" path="/libgdx/gdx-backend-lwjgl-natives.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

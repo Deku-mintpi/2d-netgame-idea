@@ -11,10 +11,13 @@ uniform int numArcs;
 uniform vec3 arcs[MAX_ARCS];
 uniform vec4 color;
 uniform float aspect;
+uniform float scale;
+uniform float xShift;
+uniform float yShift;
 
 // Known to work with some slight aliasing issues and edge issues.
 void main() {
-    vec2 pos = vec2(vPos.x * aspect, vPos.y);
+    vec2 pos = vec2(vPos.x * aspect / scale - xShift, vPos.y / scale - yShift);
     vec4 outColor = color;
     for(int i = 0; i < MAX_ARCS; i++) {
         if(i < numArcs) {
