@@ -17,8 +17,8 @@ public class Main {
 		Engine engine = new Engine();
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "Hyperbolic Test";
-		config.height = 800;
-		config.width = 1800;
+		config.height = 600;
+		config.width = 1200;
 		LwjglApplication mainWindow = new LwjglApplication(new GameAdapter(), config);
 		
 		

@@ -66,7 +66,7 @@ public class GameAdapter extends ApplicationAdapter {
 	public FreeTypeFontParameter dejaParam;
 	public BitmapFont font16;
 
-	private double numSamples = 16;
+	public double numSamples = 1;
 	
 	@Override
 	public void create() {
@@ -78,9 +78,9 @@ public class GameAdapter extends ApplicationAdapter {
 		fullquad = createFullScreenQuad();
 		
 		shapes = new Vector<Complex[]> (5);
-		shapes.setSize(2);
+		shapes.setSize(1);
 		shapes.set(0, new Complex[] {new Complex(0.3, 0.3), new Complex(0.0, 0.5), new Complex(-0.3, 0.3), new Complex(-1.0, 0.0), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
-		shapes.set(1, new Complex[] {new Complex(0.3, 0.3), new Complex(0.2, 0.4), new Complex(-0.3, 0.3), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
+//		shapes.set(1, new Complex[] {new Complex(0.3, 0.3), new Complex(0.2, 0.4), new Complex(-0.3, 0.3), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
 		
 		// used for initial button to choose test mode.
 		dejaGen = new FreeTypeFontGenerator(Gdx.files.internal("DejaVuSans.ttf"));
@@ -94,7 +94,7 @@ public class GameAdapter extends ApplicationAdapter {
 	@Override
 	public void dispose() {
 		stage.dispose();
-		editorWindow.dispose();
+		if(editorOn) editorWindow.dispose();
 	}
 
 	@Override
@@ -112,11 +112,12 @@ public class GameAdapter extends ApplicationAdapter {
 	    Gdx.gl.glEnable(GL20.GL_BLEND);
 	    
 	    // TODO: Change 2nd argument to GL20.GL_ONE_MINUS_SRC_ALPHA if AA is achieved without rendering each shape multiple times!
-	    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_CONSTANT_ALPHA);
+//	    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_CONSTANT_ALPHA);
+	    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 	    for (int i = 0; i < shapes.size(); i++) {
-//	    	shapeDraw(shapes.get(i), new Color(1.f, 0.f, 0.f, (float) (1.0/numSamples)));
+//	    	shapeDraw(shapes.get(i), new Color(1.f, 0.f, 0.f, (float) 1.0), 0);
 	    	for (int j = 0; j < numSamples; j++) {
-	    		shapeDraw(shapes.get(i), new Color(1.f, 0.f, 0.f, (float) (1.0/numSamples)));
+	    		shapeDraw(shapes.get(i), new Color(1.f, 0.f, 0.f, (float) (1.0/numSamples)), j);
 	    	}
 		}
 	    stage.draw();
@@ -131,7 +132,7 @@ public class GameAdapter extends ApplicationAdapter {
 	public void resize(int arg0, int arg1) {
 		width = arg0;
 		height = arg1;
-		aspect = width/height;
+		aspect = width/(double)height;
 		System.out.println(aspect);
 		stage.getViewport().update(width, height, true);
 	}
@@ -145,11 +146,11 @@ public class GameAdapter extends ApplicationAdapter {
 	public void updateShapes(Vector<VecPath> paths, Vector<Complex> positions) {
 		shapes.setSize(paths.size());
 		for (int i = 0; i < paths.size(); i++) {
-			shapes.set(i, paths.get(i).toCoordinates(positions.get(i)));
+			shapes.set(i, paths.get(i).vertices);
 		}
 	}
 	
-	public void shapeDraw(Complex[] vertices, Color fillType/*, int sampleNum*/) {
+	public void shapeDraw(Complex[] vertices, Color fillType, int sampleNum) {
 		//	Vector3[] lines = new Vector3[path.vertices.size()];
 		hyperShade.begin();
 		for (int i = 0; i < vertices.length; i++) {
@@ -171,15 +172,31 @@ public class GameAdapter extends ApplicationAdapter {
 		hyperShade.setUniformi("numArcs", vertices.length);
 		hyperShade.setUniformf("aspect", (float) aspect);
 		hyperShade.setUniformf("scale", (float) scale);
+//		hyperShade.setUniformf("pixW", (float) (1.0/height));
 		
 		// Chord supersampling. This ignores stuff that is out to the corners but it should yield decent results hopefully
 		// actually, trying something else in the renderer first.
 		
-//		Raw Monte Carlo supersample pattern. This tends to flicker on edges. Uses values below .5 as otherwise precision issues lead to 
-		hyperShade.setUniformf("xShift", (float) (2 * (xShift + 0.998*Math.random() - 0.499) * aspect / width));
-		hyperShade.setUniformf("yShift", (float) (2 * (yShift + 0.998*Math.random() - 0.499) / height));
+//		// Grid sampling
+//		hyperShade.setUniformf("xShift", (float) (2 * (xShift + (sampleNum/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples)) * aspect / width));
+//		hyperShade.setUniformf("yShift", (float) (2 * (yShift + (Math.floor(sampleNum/Math.sqrt(numSamples))/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples)) / height));
+//		System.out.println("xMod: " + (float) (2 * ((sampleNum/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples))) + ";yMod: " +
+//				(float) (2 * ((Math.floor(sampleNum/Math.sqrt(numSamples))/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples))));
+
+		//gridded monte carlo
+		double xMod = (sampleNum/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples);
+		xMod += Math.random()*((1/Math.sqrt(numSamples))%1) - 0.5 * ((1/Math.sqrt(numSamples))%1);
+		double yMod = (Math.floor(sampleNum/Math.sqrt(numSamples))/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples);
+		yMod += Math.random()*((1/Math.sqrt(numSamples))%1) - 0.5 * ((1/Math.sqrt(numSamples))%1);
+		hyperShade.setUniformf("xShift", (float) (2 * (xShift + xMod) * aspect / width));
+		hyperShade.setUniformf("yShift", (float) (2 * (yShift + yMod) / height));
+		System.out.println("xMod: " + 2*xMod + ";yMod: " + 2*yMod);
 		
-//		Either no supersampling, or the supersampling is in the fragment shader.
+//		// Raw Monte Carlo supersample pattern. This tends to flicker on edges. Uses values below .5 as otherwise precision issues lead to problems...
+//		hyperShade.setUniformf("xShift", (float) (2 * (xShift + 0.998*Math.random() - 0.499) * aspect / width));
+//		hyperShade.setUniformf("yShift", (float) (2 * (yShift + 0.998*Math.random() - 0.499) / height));
+		
+//		// Either no supersampling, or the supersampling is in the fragment shader.
 //		hyperShade.setUniformf("xShift", (float) (2 * xShift * aspect / width));
 //		hyperShade.setUniformf("yShift", (float) (2 * yShift / height));
 		
@@ -235,12 +252,12 @@ public class GameAdapter extends ApplicationAdapter {
 		});
 		stage.addListener(new InputListener() {
 			public boolean mouseMoved(InputEvent event, float x, float y) {
-				yShift = y - height / 2;
+				shapes.set(shapes.size()-1,new Complex[] {new Complex(-1,0), new Complex(0, -1), new Complex((x - width / 2)/(height / 2), (y - height / 2)/(height / 2))});
 				return true;
 			}
 			
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				xShift = x - width / 2;
+				shapes.add(new Complex[] {new Complex(-1,0), new Complex(0, -1), new Complex((x - width / 2)/(height / 2), (y - height / 2)/(height / 2))});
 				return true;
 			}
 		});
@@ -258,6 +275,10 @@ public class GameAdapter extends ApplicationAdapter {
 
 	public void editorTest() {
 		xShift -= 25;
+	}
+	
+	public void adjustSamples(int samples) {
+		numSamples = (double) samples;
 	}
 	
 }
