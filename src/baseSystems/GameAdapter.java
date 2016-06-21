@@ -41,24 +41,28 @@ import types.*;
 
 public class GameAdapter extends ApplicationAdapter {
 	private OrthographicCamera camera;
-//	private Vector<VecPath> shapes; //java.utils vector, not la4j vector!
-	private Vector<Complex[]> shapes;
+	public Vector<VecPath> shapes; //java.utils vector, not la4j vector!
+//	private Vector<Complex[]> shapes;
 	private Vector<Complex> positions;
 	private Complex origin;
 	ShaderProgram hyperShade;
-	Mesh fullquad;
+	Mesh diskquad;
+	Mesh fillquad;
 	private Stage stage;
 	private Table uiTable;
+	private VecPath blankPath;
+	public static InputListener inpListener;
+	private static GameAdapter passableGame;
 	
-	private EditorFrame editorWindow;
+	public EditorFrame editorWindow;
 	private boolean editorOn = false;
 	
-	private int width;
-	private int height;
+	public int width;
+	public int height;
 	private double aspect;
 	private double scale = 1;
-	protected double xShift;
-	protected double yShift;
+	public double xShift;
+	public double yShift;
 	
 	public long tick;
 	
@@ -70,16 +74,19 @@ public class GameAdapter extends ApplicationAdapter {
 	
 	@Override
 	public void create() {
+		passableGame = this;
 		stage = new Stage(new ScreenViewport());
 //		camera = new OrthographicCamera();
 //		camera.setToOrtho(false, 2, 2);
 		origin = new Complex(0, 0);
 		hyperShade = new ShaderProgram(Gdx.files.internal("baseSystems/hypervertex.glsl"), Gdx.files.internal("baseSystems/hyperfrag.glsl"));
-		fullquad = createFullScreenQuad();
+		diskquad = createHyperQuad(true);
+		fillquad = createHyperQuad(false);
+		blankPath = new VecPath(new Complex[] {new Complex(0,0), new Complex(0,-1), new Complex(1,0)}, new Color(0f, 0f, 0f, 1f));
 		
-		shapes = new Vector<Complex[]> (5);
+		shapes = new Vector<VecPath> (5);
 		shapes.setSize(1);
-		shapes.set(0, new Complex[] {new Complex(0.3, 0.3), new Complex(0.0, 0.5), new Complex(-0.3, 0.3), new Complex(-1.0, 0.0), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
+		shapes.set(0, new VecPath(new Complex[] {new Complex(0.3, 0.3), new Complex(0.0, 0.5), new Complex(-0.3, 0.3), new Complex(-1.0, 0.0), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)},Color.RED));
 //		shapes.set(1, new Complex[] {new Complex(0.3, 0.3), new Complex(0.2, 0.4), new Complex(-0.3, 0.3), new Complex(-0.3, -0.3), new Complex(0.3, -0.3)});
 		
 		// used for initial button to choose test mode.
@@ -112,12 +119,14 @@ public class GameAdapter extends ApplicationAdapter {
 	    Gdx.gl.glEnable(GL20.GL_BLEND);
 	    
 	    // TODO: Change 2nd argument to GL20.GL_ONE_MINUS_SRC_ALPHA if AA is achieved without rendering each shape multiple times!
-//	    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_CONSTANT_ALPHA);
-	    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-	    for (int i = 0; i < shapes.size(); i++) {
-//	    	shapeDraw(shapes.get(i), new Color(1.f, 0.f, 0.f, (float) 1.0), 0);
-	    	for (int j = 0; j < numSamples; j++) {
-	    		shapeDraw(shapes.get(i), new Color(1.f, 0.f, 0.f, (float) (1.0/numSamples)), j);
+//		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_CONSTANT_ALPHA);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		initDraw(blankPath);
+		for (int i = 0; i < shapes.size(); i++) {
+//			shapeDraw(shapes.get(i), new Color(1.f, 0.f, 0.f, (float) 1.0), 0);
+			for (int j = 0; j < numSamples; j++) {
+//				shapeDraw(shapes.get(i), new Color(1.f, 0.f, 0.f, (float) (1.0/numSamples)), j);
+				shapeDraw(shapes.get(i), j);
 	    	}
 		}
 	    stage.draw();
@@ -134,6 +143,7 @@ public class GameAdapter extends ApplicationAdapter {
 		height = arg1;
 		aspect = width/(double)height;
 		System.out.println(aspect);
+		diskquad = createHyperQuad(true);
 		stage.getViewport().update(width, height, true);
 	}
 
@@ -146,16 +156,16 @@ public class GameAdapter extends ApplicationAdapter {
 	public void updateShapes(Vector<VecPath> paths, Vector<Complex> positions) {
 		shapes.setSize(paths.size());
 		for (int i = 0; i < paths.size(); i++) {
-			shapes.set(i, paths.get(i).vertices);
+			shapes.set(i, paths.get(i));
 		}
 	}
 	
-	public void shapeDraw(Complex[] vertices, Color fillType, int sampleNum) {
+	public void initDraw(VecPath path) {
 		//	Vector3[] lines = new Vector3[path.vertices.size()];
 		hyperShade.begin();
-		for (int i = 0; i < vertices.length; i++) {
-			Complex p = vertices[i];
-			Complex q = vertices[(i+1)%vertices.length];
+		for (int i = 0; i < path.vertices.length; i++) {
+			Complex p = path.vertices[i];
+			Complex q = path.vertices[(i+1)%path.vertices.length];
 
 			//convert to Klein model
 			Complex np = new Complex(2*p.re / (1 + p.re*p.re + p.im*p.im), 2*p.im / (1 + p.re*p.re + p.im*p.im));
@@ -168,8 +178,38 @@ public class GameAdapter extends ApplicationAdapter {
 			hyperShade.setUniformf("arcs["+i+"]", new Vector3(a, b, c));
 			//		lines[i-1] 
 		}
-		hyperShade.setUniformf("color", fillType);
-		hyperShade.setUniformi("numArcs", vertices.length);
+		
+		hyperShade.setUniformf("color", new Color(0f, 0f, 0f, 0f));
+		hyperShade.setUniformi("numArcs", 2);
+		hyperShade.setUniformf("aspect", (float) aspect);
+		hyperShade.setUniformf("scale", (float) scale);
+		hyperShade.setUniformf("xShift", (float) (2 * xShift * aspect / width));
+		hyperShade.setUniformf("yShift", (float) (2 * yShift / height));
+		
+		fillquad.render(hyperShade, GL20.GL_TRIANGLE_STRIP);
+		hyperShade.end();
+	}
+	
+	public void shapeDraw(VecPath path, int sampleNum) {
+		//	Vector3[] lines = new Vector3[path.vertices.size()];
+		hyperShade.begin();
+		for (int i = 0; i < path.vertices.length; i++) {
+			Complex p = path.vertices[i];
+			Complex q = path.vertices[(i+1)%path.vertices.length];
+
+			//convert to Klein model
+			Complex np = new Complex(2*p.re / (1 + p.re*p.re + p.im*p.im), 2*p.im / (1 + p.re*p.re + p.im*p.im));
+			Complex nq = new Complex(2*q.re / (1 + q.re*q.re + q.im*q.im), 2*q.im / (1 + q.re*q.re + q.im*q.im));
+
+			float a = (float) (2.0*(np.im - nq.im));
+			float b = (float) (2.0*(nq.re - np.re));
+			float c = (float) (np.im * nq.re - np.re * nq.im);
+
+			hyperShade.setUniformf("arcs["+i+"]", new Vector3(a, b, c));
+			//		lines[i-1] 
+		}
+		hyperShade.setUniformf("color", path.fillType);
+		hyperShade.setUniformi("numArcs", path.vertices.length);
 		hyperShade.setUniformf("aspect", (float) aspect);
 		hyperShade.setUniformf("scale", (float) scale);
 //		hyperShade.setUniformf("pixW", (float) (1.0/height));
@@ -183,56 +223,69 @@ public class GameAdapter extends ApplicationAdapter {
 //		System.out.println("xMod: " + (float) (2 * ((sampleNum/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples))) + ";yMod: " +
 //				(float) (2 * ((Math.floor(sampleNum/Math.sqrt(numSamples))/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples))));
 
-		//gridded monte carlo
-		double xMod = (sampleNum/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples);
-		xMod += Math.random()*((1/Math.sqrt(numSamples))%1) - 0.5 * ((1/Math.sqrt(numSamples))%1);
-		double yMod = (Math.floor(sampleNum/Math.sqrt(numSamples))/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples);
-		yMod += Math.random()*((1/Math.sqrt(numSamples))%1) - 0.5 * ((1/Math.sqrt(numSamples))%1);
-		hyperShade.setUniformf("xShift", (float) (2 * (xShift + xMod) * aspect / width));
-		hyperShade.setUniformf("yShift", (float) (2 * (yShift + yMod) / height));
-		System.out.println("xMod: " + 2*xMod + ";yMod: " + 2*yMod);
+//		//gridded monte carlo
+//		double xMod = (sampleNum/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples);
+//		xMod += Math.random()*((1/Math.sqrt(numSamples))%1) - 0.5 * ((1/Math.sqrt(numSamples))%1);
+//		double yMod = (Math.floor(sampleNum/Math.sqrt(numSamples))/Math.sqrt(numSamples))%1 - 0.5*(Math.sqrt(numSamples)-1)/Math.sqrt(numSamples);
+//		yMod += Math.random()*((1/Math.sqrt(numSamples))%1) - 0.5 * ((1/Math.sqrt(numSamples))%1);
+//		hyperShade.setUniformf("xShift", (float) (2 * (xShift + xMod) * aspect / width));
+//		hyperShade.setUniformf("yShift", (float) (2 * (yShift + yMod) / height));
+//		System.out.println("xMod: " + 2*xMod + ";yMod: " + 2*yMod);
 		
 //		// Raw Monte Carlo supersample pattern. This tends to flicker on edges. Uses values below .5 as otherwise precision issues lead to problems...
 //		hyperShade.setUniformf("xShift", (float) (2 * (xShift + 0.998*Math.random() - 0.499) * aspect / width));
 //		hyperShade.setUniformf("yShift", (float) (2 * (yShift + 0.998*Math.random() - 0.499) / height));
 		
-//		// Either no supersampling, or the supersampling is in the fragment shader.
-//		hyperShade.setUniformf("xShift", (float) (2 * xShift * aspect / width));
-//		hyperShade.setUniformf("yShift", (float) (2 * yShift / height));
+		// Either no supersampling, or the supersampling is in the fragment shader.
+		hyperShade.setUniformf("xShift", (float) (2 * xShift * aspect / width));
+		hyperShade.setUniformf("yShift", (float) (2 * yShift / height));
 		
-		fullquad.render(hyperShade, GL20.GL_TRIANGLE_STRIP);
+		diskquad.render(hyperShade, GL20.GL_TRIANGLE_STRIP);
 		hyperShade.end();
 	}
 	
-	//copied super ugly thing from libgdx documentation
-	public Mesh createFullScreenQuad() {
-
+	// rewritten version yay.
+	public Mesh createHyperQuad(boolean isDisk) {
+		// if isDisk is true, generate a square quad where the poincare disk will be rendered.
+		// if isDisk is false, generate a full-screen quad for filling in the outside with black.
+		
 		float[] verts = new float[12];
-		int i = 0;
-
-		verts[i++] = -1; // x1
-		verts[i++] = -1; // y1
-		verts[i++] = 0;
-
-		verts[i++] = 1f; // x2
-		verts[i++] = -1; // y2
-		verts[i++] = 0;
-
-		verts[i++] = -1; // x4
-		verts[i++] = 1f; // y4
-		verts[i++] = 0;
-
-		verts[i++] = 1f; // x3
-		verts[i++] = 1f; // y2
-		verts[i++] = 0;
-
-		Mesh mesh = new Mesh(true, 4, 0,  // static mesh with 4 vertices and no indices
+		float xOff = (float) (2*xShift/width);
+		float yOff = (float) (2*yShift/height);
+		if (!isDisk) {
+			xOff = 0.f;
+			yOff = 0.f;
+		}
+		double laspect = (isDisk)?aspect:1;
+		
+		for (int i = 0; i < verts.length; i++) {
+			if (i%3 == 0) {
+				verts[i] = (float) ((2*(i%2)-1)/laspect)+xOff;
+			} else if (i%3 == 1) {
+				verts[i] = ((i<6)?-1:1) + yOff;
+			} else verts[i] = 0;
+		}
+		
+		Mesh mesh = new Mesh(false, 4, 0,  // non-static mesh with 4 vertices and no indices
 				new VertexAttribute(Usage.Position, 3, "pos"));
 
-		mesh.setVertices( verts );
+		mesh.setVertices(verts);
 		return mesh;
 	}
-	// original code by kalle_h
+	
+	
+	public void shiftFullQuad(double x, double y) {
+		float[] verts = new float[12];
+		diskquad.getVertices(verts);
+		for (int i = 0; i < verts.length; i++) {
+			if (i%3 == 0) {
+				verts[i] += (float) (2*x/width);
+			} else if (i%3 == 1) {
+				verts[i] += (float) (2*y/height);
+			}
+		}
+		diskquad.setVertices(verts);
+	}
 	
 	public void setupMainMenu() {
 		VerticalGroup mainMenuButtons = new VerticalGroup();
@@ -250,35 +303,31 @@ public class GameAdapter extends ApplicationAdapter {
 				editorOn = true;
 			}
 		});
-		stage.addListener(new InputListener() {
-			public boolean mouseMoved(InputEvent event, float x, float y) {
-				shapes.set(shapes.size()-1,new Complex[] {new Complex(-1,0), new Complex(0, -1), new Complex((x - width / 2)/(height / 2), (y - height / 2)/(height / 2))});
-				return true;
-			}
-			
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				shapes.add(new Complex[] {new Complex(-1,0), new Complex(0, -1), new Complex((x - width / 2)/(height / 2), (y - height / 2)/(height / 2))});
-				return true;
-			}
-		});
 		uiTable = new Table();
 		uiTable.setFillParent(true);
 		uiTable.add(startEdit);
 		stage.addActor(uiTable);
-		
 	}
 	
 	protected void startEditor(){
 		editorWindow = new EditorFrame(this);
 		uiTable.reset();
 	}
-
-	public void editorTest() {
-		xShift -= 25;
+	
+	public void shiftGL(double x, double y){
+		xShift += x;
+		yShift += y;
+		shiftFullQuad(x, y);
 	}
 	
 	public void adjustSamples(int samples) {
 		numSamples = (double) samples;
+	}
+	
+	public void setInpMode(int mode) {
+		stage.removeListener(inpListener);
+		inpListener = ModeActionUpdater.changeInpMode(mode, passableGame);
+		stage.addListener(inpListener);
 	}
 	
 }

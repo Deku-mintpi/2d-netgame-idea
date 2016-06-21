@@ -10,37 +10,29 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import editor.ModePanel;
+import editor.panels.ShiftDisk;
+
 public class EditorFrame extends JFrame implements ActionListener {
 	/**
 	 * 
 	 */
 	
-	JButton testButton = new JButton("Shift GL left");
-	JButton[] aaButton = {null, null, null, null};
-	JPanel labelPanel = new JPanel(new GridLayout(3, 1));
-	JPanel aaPanel = new JPanel(new GridLayout(1, 4));
-	JLabel dispY = new JLabel("yShift: 0");
-	JLabel dispX = new JLabel("xShift: 0");
+	public static GameAdapter game;
+	int editMode = 0; //unset
 	
-	public GameAdapter game;
+	ModePanel modeMenu = new ModePanel(this);
+	public static ActionPanel mainContextPanel;
 	
 	public EditorFrame(GameAdapter game) {
 		this.game = game;
+		EditorFrame.mainContextPanel = new ActionPanel();
 		this.setTitle("HyperEdit version 0.0.0; 2016-06-16");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(300, 400);
 		this.setLayout(new BorderLayout());
-		testButton.addActionListener(this);
-		this.add(testButton,BorderLayout.NORTH);
-		labelPanel.add(dispY);
-		labelPanel.add(dispX);
-		for(int i = 0; i < 4; i++) {
-			aaButton[i] = new JButton((i+1)*(i+1) + " sample/pix");
-			aaButton[i].addActionListener(this);
-			aaPanel.add(aaButton[i]);
-		}
-		labelPanel.add(aaPanel);
-		this.add(labelPanel, BorderLayout.SOUTH);
+		this.add(modeMenu, BorderLayout.NORTH);
+		this.add(mainContextPanel.panel, BorderLayout.SOUTH);
 		this.pack();
 		this.setVisible(true);
 	}
@@ -48,26 +40,55 @@ public class EditorFrame extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		if (e.getSource().equals(testButton)) {
-//			game.xShift -= 10.f;
-			game.editorTest();
+		if (e.getSource().equals(mainContextPanel)) {
+			game.shiftGL(-25, 0);
 		}
-		else
-		{
-			for (int i = 0; i < aaButton.length; i++){
-				if (e.getSource().equals(aaButton[i])) {
-//					game.xShift -= 10.f;
-					game.adjustSamples((i+1)*(i+1));
-				}
-			}
-		}
-		
-		
 	}
 	
 	public void updateDisplay(double yVal, double xVal){
-		dispY.setText("yShift: " + yVal);
-		dispX.setText("xShift: " + xVal);
+//		dispY.setText("yShift: " + yVal);
+//		dispX.setText("xShift: " + xVal);
 	}
-
+	
+	public interface Mode {
+		final GameAdapter game = EditorFrame.game;
+		
+		public int modeType();
+	}
+	
+	public interface EditorPanel {
+		ActionPanel panel = EditorFrame.mainContextPanel;
+		final EditorFrame editor = game.editorWindow;
+	}
+	
+	public class ActionPanel {
+		public JPanel panel;
+		public ActionListener listener;
+		
+		public ActionPanel() {
+			this.panel = new JPanel();
+			listener = new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {}
+			};
+		}
+		
+		public ActionPanel(JPanel panel) {
+			this.panel = panel;
+			listener = new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {}
+			};
+		}
+		
+		public void setPanel(JPanel panel) {
+			this.panel.removeAll();
+			this.panel.add(panel);
+		}
+		
+		public void setListener(ActionListener listener) {
+			this.listener = listener;
+		}
+	}
+	
 }
