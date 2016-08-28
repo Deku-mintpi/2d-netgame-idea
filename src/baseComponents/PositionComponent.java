@@ -1,11 +1,9 @@
 package baseComponents;
 
+import java.util.List;
+
 import com.badlogic.ashley.core.*;
 
-import types.Complex;
-
-// x,y,rot
 public class PositionComponent implements Component {
-	public Complex coords;
-	public double heading;
+	double x, y, z;
 }
