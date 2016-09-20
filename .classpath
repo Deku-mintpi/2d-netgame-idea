@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="/libgdx/extensions/gdx-freetype/gdx-freetype-natives.jar"/>
 	<classpathentry kind="lib" path="/libgdx/gdx-natives.jar"/>
 	<classpathentry kind="lib" path="/libgdx/gdx-backend-lwjgl-natives.jar"/>
+	<classpathentry kind="lib" path="/libgdx/extensions/gdx-tools/gdx-tools.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
