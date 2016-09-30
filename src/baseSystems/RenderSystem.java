@@ -26,16 +26,13 @@ public class RenderSystem extends SortedIteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		// TODO Auto-generated method stub
-		System.out.println("hello batch?");
 		GameAdapter.batch.draw((TextureRegion) Mappers.img_m.get(entity).image, (float) Mappers.pm.get(entity).x, (float) Mappers.pm.get(entity).y);
-		System.out.println("hello batch 2?");
 	}
 	
 	private static class ZComparator implements Comparator<Entity> {
 		@Override
 		public int compare(Entity e1, Entity e2) {
 			// TODO Auto-generated method stub
-			System.out.println("hello compare?");
 			return (int)Math.signum(Mappers.img_m.get(e1).zOrd - Mappers.img_m.get(e2).zOrd);
 		}
 		

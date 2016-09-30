@@ -1,3 +1,0 @@
-hvo 0, 1;
-fill green inner 00A000FF;
-path(green, none, 1) line {-.5, -.5} line {.5, -.5} line {.5, .5} line {-.5, .5} line;
