@@ -24,24 +24,23 @@ public class GameAdapter extends ApplicationAdapter {
 		w = Gdx.graphics.getWidth();
 		h = Gdx.graphics.getHeight();
 		batch = new SpriteBatch();
-//		batch.setProjectionMatrix(cam2d.combined);
 		renderer = new RenderSystem();
 		Main.engine.addSystem(renderer);
-		Mappers.atlas = new TextureAtlas(Gdx.files.internal("src/images/textures.atlas"));
-		AtlasRegion testImg = Mappers.atlas.findRegion("ButtonTexture");
-		Entity testEntity = Main.engine.createEntity();
-		ImageComponent<AtlasRegion> testImgComp = Main.engine.createComponent(ImageComponent.class);
-		PositionComponent testPosComp = Main.engine.createComponent(PositionComponent.class);
-		testImgComp.image = testImg;
-		testImgComp.zOrd = 1;
-		testImgComp.canRotate = true;
-		testPosComp.x = 17;
-		testPosComp.y = 29;
-		testEntity.add(testImgComp);
-		testEntity.add(testPosComp);
-		Main.engine.addEntity(testEntity);
-		System.out.println(renderer.getFamily().matches(testEntity));
-		System.out.println(renderer.getEntities());
+//		Mappers.atlas = new TextureAtlas(Gdx.files.internal("src/images/textures.atlas"));
+//		AtlasRegion testImg = Mappers.atlas.findRegion("ButtonTexture");
+//		Entity testEntity = Main.engine.createEntity();
+//		ImageComponent<AtlasRegion> testImgComp = Main.engine.createComponent(ImageComponent.class);
+//		PositionComponent testPosComp = Main.engine.createComponent(PositionComponent.class);
+//		testImgComp.image = testImg;
+//		testImgComp.zOrd = 1;
+//		testImgComp.canRotate = true;
+//		testPosComp.x = 17;
+//		testPosComp.y = 29;
+//		testEntity.add(testImgComp);
+//		testEntity.add(testPosComp);
+//		Main.engine.addEntity(testEntity);
+//		System.out.println(renderer.getFamily().matches(testEntity));
+//		System.out.println(renderer.getEntities());
 	}
 
 	@Override
@@ -65,7 +64,8 @@ public class GameAdapter extends ApplicationAdapter {
 
 	@Override
 	public void resize(int arg0, int arg1) {
-		
+		w = arg0;
+		h = arg1;
 	}
 
 	@Override
